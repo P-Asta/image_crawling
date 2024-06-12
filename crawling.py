@@ -1,12 +1,12 @@
 import time
 import ssl
+import urllib.request
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
-from Scripts.fun import create_save_folder, image_download, ssl_error_handler, image_limit_check
-
-original_ssl_context = ssl._create_default_https_context
+from Scripts.fun import create_save_folder, image_limit_check, file_extention_f
 
 while True:
 
@@ -22,6 +22,33 @@ while True:
 
     chrome_options = webdriver.ChromeOptions()
     driver = webdriver.Chrome(options=chrome_options)
+
+    driver.get("https://www.google.com/preferences?hl=ko&prev=https://www.google.com/search?q%3D%25E3%2585%2587%26sca_esv%3Dcde25c42fe00d5a3%26sca_upv%3D1#tabVal=1")
+    time.sleep(pause)
+
+    s1 = driver.find_element(By.CSS_SELECTOR, "body > div:nth-child(2) > div.iORcjf > div:nth-child(2) > div:nth-child(2) > div.HrFxGf > div > div > div > div").click()
+    time.sleep(pause)
+
+    s1 = driver.find_element(By.CSS_SELECTOR, "body > div.iORcjf > div:nth-child(2) > div > div:nth-child(2) > div > div:nth-child(2) > div > div:nth-child(2) > div.HrqWPb > div").click()
+    time.sleep(pause)
+
+    s1 = driver.find_element(By.CSS_SELECTOR, "#lb > div > div.mcPPZ.nP0TDe.xg7rAe.ivkdbf > span > div > g-text-field > div.WO1lOd > div.FFTibe > input")
+    s1.click()
+    time.sleep(pause)
+    s1.send_keys("미국")
+
+    s1 = driver.find_element(By.CSS_SELECTOR, "#lb > div > div.mcPPZ.nP0TDe.xg7rAe.ivkdbf > span > div > g-menu > g-menu-item:nth-child(53) > div").click()
+    time.sleep(pause)
+
+    s1 = driver.find_element(By.CSS_SELECTOR, "#lb > div > div.mcPPZ.nP0TDe.xg7rAe.ivkdbf > span > div > div.JhVSze > span:nth-child(2)").click()
+    time.sleep(pause)
+
+    driver.get("https://www.google.com/preferences?hl=ko&prev=https://www.google.com/search%3Fq%3D%25E3%2585%2587%26sca_esv%3Dcde25c42fe00d5a3%26sca_upv%3D1")
+    s2 = driver.find_element(By.CSS_SELECTOR, "body > div:nth-child(2) > div.iORcjf > div:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div > div > div > div").click()
+    time.sleep(pause)
+
+    s2 = driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/g-radio-button-group/div[3]/div[3]").click()
+    time.sleep(pause)
 
     driver.get("https://www.google.com/imghp")
 
@@ -59,13 +86,27 @@ while True:
             break
 
         try:
+            # 이미지를 클릭하여 큰 이미지가 표시되도록 함
             img_element = driver.find_elements(By.CSS_SELECTOR, ".mNsIhb")[i]
             driver.execute_script("arguments[0].click();", img_element)
             time.sleep(pause)
-            image_download(query, i, num_images, images[i].get_attribute('src'))
 
-        except ssl.SSLError as e:
-            ssl_error_handler(query, i, num_images, original_ssl_context)
+            # 큰 이미지 URL 가져오기
+            original_img_element = driver.find_element(By.XPATH, "/html/body/div[6]/div/div/div/div/div/div/c-wiz/div/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]")
+            original_img_src = original_img_element.get_attribute('src')
+
+            # HTTP 헤더 설정
+            opener = urllib.request.build_opener()
+            opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+            urllib.request.install_opener(opener)
+
+            # 확장자 설정
+            filename = file_extention_f(original_img_src, query, i)
+
+            # 이미지 다운로드
+            save_path = os.path.join(query, filename)
+            urllib.request.urlretrieve(original_img_src, save_path)
+            print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
 
         except Exception as e:
             print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
