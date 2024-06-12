@@ -8,12 +8,10 @@ from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from Scripts.fun import create_save_folder, image_limit_check, file_extention_f
 
+pause = 0.7
+scroll_pause_time = 1.5
 while True:
-
-    pause = 0.7
-    # 검색어 입력
     query = input("검색어 입력: ")
-    scroll_pause_time = 1.5
 
     create_save_folder(query)
 
