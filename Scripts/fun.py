@@ -1,10 +1,10 @@
 import os
 
-scroll_pause_time = 1.7
-
 def create_save_folder(query):
+    if not os.path.exists('images', exist_ok=True):
+        os.makedirs('images')
     if not os.path.exists(query):
-        os.makedirs(query)
+        os.makedirs(f'images\{query}', exist_ok=True)
         print(f"'{query}' 폴더 생성 완료...")
 
 def image_limit_check(i, num_images, images):
@@ -18,5 +18,5 @@ def file_extention_f(original_img_src, query, i):
         file_extension = 'png'
     if file_extension == 'net':
         file_extension = 'png'
-    filename = f'{query}_{i + 1}.{file_extension}'
+    filename = 'images\\' + f'{query}_{i + 1}.{file_extension}'
     return filename
