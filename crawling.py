@@ -4,11 +4,10 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from selenium.webdriver.common.action_chains import ActionChains
 from Scripts.fun import create_save_folder, image_limit_check, file_extention_f
 
-pause = 0.7
-scroll_pause_time = 1.8
+pause = 0.5
+scroll_pause_time = 1.7
 
 # HTTP 헤더 설정
 opener = urllib.request.build_opener()
@@ -24,6 +23,8 @@ while True:
     num_images = int(input("수집할 이미지 개수 입력: "))
 
     chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument('--ignore-ssl-errors')
     driver = webdriver.Chrome(options=chrome_options)
 
     driver.get("https://www.google.com/imghp")
@@ -94,7 +95,10 @@ while True:
                 print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
 
         except Exception as e:
-            print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
+            if not os.path.exists(filename):
+                print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
+            else:
+                print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
 
     driver.quit()
     print("작업 완료 'exit' 입력시 종료 아니면 다시 반복합니다.")
