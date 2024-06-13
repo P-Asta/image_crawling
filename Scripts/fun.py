@@ -1,7 +1,7 @@
 import os
 
 def create_save_folder(query):
-    if not os.path.exists('images', exist_ok=True):
+    if not os.path.exists('images'):
         os.makedirs('images')
     if not os.path.exists(query):
         os.makedirs(f'images\{query}', exist_ok=True)
