@@ -1,5 +1,4 @@
 import time
-import ssl
 import urllib.request
 import os
 from selenium import webdriver
@@ -9,7 +8,13 @@ from selenium.webdriver.common.action_chains import ActionChains
 from Scripts.fun import create_save_folder, image_limit_check, file_extention_f
 
 pause = 0.7
-scroll_pause_time = 1.5
+scroll_pause_time = 1.8
+
+# HTTP 헤더 설정
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
+urllib.request.install_opener(opener)
+
 while True:
     query = input("검색어 입력: ")
 
@@ -45,7 +50,7 @@ while True:
 
     scroll_and_load()
     driver.execute_script("window.scrollTo(0, 0)")
-    time.sleep(pause)
+    time.sleep(1)
 
     # 이미지 요소 탐색
     images = driver.find_elements(By.CSS_SELECTOR, ".YQ4gaf")
@@ -63,21 +68,30 @@ while True:
             time.sleep(pause)
 
             # 큰 이미지 URL 가져오기
-            original_img_element = driver.find_element(By.XPATH, "/html/body/div[6]/div/div/div/div/div/div/c-wiz/div/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]")
+            original_img_element = driver.find_element(By.XPATH, '//*[@id="Sva75c"]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]')
             original_img_src = original_img_element.get_attribute('src')
 
-            # HTTP 헤더 설정
-            opener = urllib.request.build_opener()
-            opener.addheaders = [('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36')]
-            urllib.request.install_opener(opener)
-
-            # 확장자 설정
+            # 파일명 설정
             filename = file_extention_f(original_img_src, query, i)
 
             # 이미지 다운로드
-            save_path = os.path.join(query, filename)
+            save_path = os.path.join(filename)
             urllib.request.urlretrieve(original_img_src, save_path)
             print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
+
+        except NoSuchElementException:
+            try:
+                print(f"{i+1}번째 이미지 처리 중 오류 발생: NoSuchElementException\n다시 시도합니다.")
+                original_img_element = driver.find_element(By.XPATH, '/html/body/div[2]/c-wiz/div[3]/div[2]/div[3]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]')
+                original_img_src = original_img_element.get_attribute('src')
+
+                filename = file_extention_f(original_img_src, query, i)
+
+                save_path = os.path.join(filename)
+                urllib.request.urlretrieve(original_img_src, save_path)
+                print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
+            except Exception as e:
+                print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
 
         except Exception as e:
             print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
