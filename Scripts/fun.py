@@ -18,5 +18,5 @@ def file_extention_f(original_img_src, query, i):
         file_extension = 'png'
     if file_extension == 'net':
         file_extension = 'png'
-    filename = 'images\\' + f'{query}_{i + 1}.{file_extension}'
+    filename = f'images\{query}\{query}_{i + 1}.{file_extension}'
     return filename
