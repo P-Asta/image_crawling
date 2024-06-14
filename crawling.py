@@ -4,9 +4,10 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
-from Scripts.fun import create_save_folder, image_limit_check, file_extention_f
+from Scripts.fun import create_save_folder, image_limit_check, file_extention_f, image_download
 
 pause = 0.5
+click_pause = 0.4
 scroll_pause_time = 1.7
 
 # HTTP 헤더 설정
@@ -43,10 +44,12 @@ while True:
             new_height = driver.execute_script("return document.body.scrollHeight")
             if new_height == last_height:
                 try:
-                    load_more_button = driver.find_element(By.CSS_SELECTOR, ".mye4qd")
-                    load_more_button.click()
+                    driver.find_element(By.CSS_SELECTOR, ".RVQdVd").click()
                 except:
-                    break
+                    try:
+                        driver.find_element(By.CSS_SELECTOR, ".mye4qd").click()
+                    except:
+                        break
             last_height = new_height
 
     scroll_and_load()
@@ -66,7 +69,7 @@ while True:
             # 이미지를 클릭하여 큰 이미지가 표시되도록 함
             img_element = driver.find_elements(By.CSS_SELECTOR, ".mNsIhb")[i]
             driver.execute_script("arguments[0].click();", img_element)
-            time.sleep(pause)
+            time.sleep(click_pause)
 
             # 큰 이미지 URL 가져오기
             original_img_element = driver.find_element(By.XPATH, '//*[@id="Sva75c"]/div[2]/div[2]/div[2]/div[2]/c-wiz/div/div/div/div/div[3]/div[1]/a/img[1]')
@@ -76,9 +79,7 @@ while True:
             filename = file_extention_f(original_img_src, query, i)
 
             # 이미지 다운로드
-            save_path = os.path.join(filename)
-            urllib.request.urlretrieve(original_img_src, save_path)
-            print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
+            image_download(original_img_src, filename, query, i, num_images)
 
         except NoSuchElementException:
             try:
@@ -88,9 +89,7 @@ while True:
 
                 filename = file_extention_f(original_img_src, query, i)
 
-                save_path = os.path.join(filename)
-                urllib.request.urlretrieve(original_img_src, save_path)
-                print(f"{query} : {i + 1}/{num_images} 이미지 다운로드 완료...")
+                image_download(original_img_src, filename, query, i, num_images)
             except Exception as e:
                 print(f"{i+1}번째 이미지 처리 중 오류 발생: {e}")
 
